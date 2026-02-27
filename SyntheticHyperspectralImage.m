@@ -90,5 +90,5 @@ HSIData = Means(:, pixelindices); % 400 x 10000
 % reshape 10000 -> 100x100
 tempCube = reshape(HSIData, [wave_space, rows, cols]);
 
-% 4. Permute to get the standard HSI format: [Rows x Cols x Bands]
+% Permute to get the standard HSI format: [Rows x Cols x Bands]
 HSI = permute(tempCube, [2, 3, 1]);
