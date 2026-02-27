@@ -37,12 +37,15 @@ StdminusTable = array2table(Stdminus, 'VariableNames', names);
 
 %% make HSI
 
+% Background Info/Variables
 % assign variables to dimensions of means
 [NumWavelengths, NumSpecies] = size(Means); % Should be wave_space x total classes
 % final image will be rows x columns x wave_space
 rows = 100;
 cols = 100;
 totalpixels = rows*cols;
+
+%% Select Species Distributions
 
 % select columns in table that correspond to each class that distribution
 % is specified for and make into cell array
@@ -55,23 +58,37 @@ DougFirPerc = 0.30;
 CottwoodPerc = 0.20;
 ClassPerc = {DougFirPerc, CottwoodPerc};
 
-% call speciesdist function to select percentages of each
-[HSIPixels] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies);
+% call speciesdist function to select percentages and classes of each
+% species
+[ClassPixelsMat, OtherPixelsMat] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies);
+
+%% Make species patches
+
+% Option 1: Gaussian blurring
+
+% choosing sigma:
+%   - 1% to 2% of the smallest dimension for small patches
+%   - around 5% of the smallest dimension for medium sized patches
+%   - around 10%-15% for large, continuous patches
+
+% choose a mixed amount of each type for more randomized sizes of patches
+
+% amount of image for each size of patch from smallest to largest
+Sigmas = [0.1 0.45 0.45];
+
+[BlurredIm] = Patches(Sigmas,rows,cols,ClassPixelsMat,OtherPixelsMat);
+
+%% Assign class wavelengths to class pixels
+
+% flatten BlurredIm so it's easier to extract data
+pixelindices = BlurredIm(:);
 
 % Extract the 400 wavelengths for each pixel
-HSIData = Means(:, HSIPixels); % 400 x 10000
+HSIData = Means(:, pixelindices); % 400 x 10000
 
 % reshape into cube - 400x10000 right now, so first 
 % reshape 10000 -> 100x100
 tempCube = reshape(HSIData, [wave_space, rows, cols]);
 
 % 4. Permute to get the standard HSI format: [Rows x Cols x Bands]
-HSICube = permute(tempCube, [2, 3, 1]);
-
-% We have a hyperspectral image! (I think)
-
-
-
-
-
-
+HSI = permute(tempCube, [2, 3, 1]);
