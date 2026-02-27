@@ -1,10 +1,10 @@
-function [HSIPixels] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies)
+function [ClassPixelsMat, OtherPixelsMat] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies)
 %SPECIESDIST This function allows you to select the percentage of pixels
 % that will corespond to a specific species using the indices in the
 % MeansTable that corespond to that species
 % 
 % usage:
-%      [HSIPixels] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies)
+%      [ClassPixelsMat, OtherPixelsMat] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies)
 %
 %   Classidx = cell array of matrices - each matrix contains the column
 %       indices in MeansTable coresponding to a specific species
@@ -12,15 +12,11 @@ function [HSIPixels] = speciesdist(Classidx,ClassPerc,totalpixels,NumSpecies)
 %       want to be the paired species from Classidx
 %   totalpixels = rows*columns, total # of pixels in final image
 %   NumSpecies = total number of species being used in image
-%   HSIPixels = Matrix of pixels - all assigned an index corresponding to a
-%       species from the MeansTable
+%   ClassPixels = cell array of matrices of each species with desired
+%   number of pixels and randomly selected species classes
+%   OtherPixelsMat = matrix containing number of pixels not specified in
+%   species distribution, randomly assigned unspecified species classes
 %
-
-% pick a random order of pixels, will assign classes to pixels in this order
-RandOrder = randperm(totalpixels);
-
-% make a row of zeros to put pixels into
-HSIPixels = zeros(totalpixels, 1);
 
 % choose number of class pixels to be ClassPerc of total, round to whole # of pixels
 ClassNumArray = cellfun(@(perc) round(perc * totalpixels), ClassPerc,...
@@ -44,9 +40,5 @@ ClassPixelsMat = cell2mat(ClassPixels);
 
 % select other columns randomly for rest of pixels
 OtherPixelsMat = OtheridxMat(randi(length(OtheridxMat), RemainingNum, 1));
-
-% assign pixels in HSI
-HSIPixels(RandOrder(1:ClassNum)) = ClassPixelsMat;
-HSIPixels(RandOrder((ClassNum+1):totalpixels)) = OtherPixelsMat;
 
 end
