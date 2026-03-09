@@ -51,12 +51,14 @@ totalpixels = rows*cols;
 % is specified for and make into cell array
 DougFiridx = [8, 9, 10]; 
 Cottwoodidx = [6, 7];
-Classidx = {DougFiridx, Cottwoodidx};
+Brgrsidx = [3, 4];
+Classidx = {DougFiridx, Cottwoodidx, Brgrsidx};
 
 % select desired percent distributions for each index and create cell array
 DougFirPerc = 0.30;
-CottwoodPerc = 0.20;
-ClassPerc = {DougFirPerc, CottwoodPerc};
+CottwoodPerc = 0.10;
+BrgrsPerc = 0.10;
+ClassPerc = {DougFirPerc, CottwoodPerc, BrgrsPerc};
 
 % call speciesdist function to select percentages and classes of each
 % species
@@ -64,8 +66,12 @@ ClassPerc = {DougFirPerc, CottwoodPerc};
 
 %% Make species patches
 
-% Option 1: Gaussian blurring
+Gaussian = 0;
+PixelOverlay = 1;
 
+% ------------------Option 1: Gaussian blurring--------------------------
+
+if Gaussian == 1
 % choosing sigma:
 %   - 1% to 2% of the smallest dimension for small patches
 %   - around 5% of the smallest dimension for medium sized patches
@@ -73,10 +79,46 @@ ClassPerc = {DougFirPerc, CottwoodPerc};
 
 % choose a mixed amount of each type for more randomized sizes of patches
 
-% amount of image for each size of patch from smallest to largest
-Sigmas = [0.1 0.45 0.45];
+% amount of each size of patch from smallest to largest (ratios)
+Sigmas = [0.1 0.2 0.3];
 
 [BlurredIm] = Patches(Sigmas,rows,cols,ClassPixelsMat,OtherPixelsMat);
+
+% verify patches were made
+figure();
+imagesc(BlurredIm); 
+colorbar;
+title('Species Distribution Map');
+axis image; % make image square
+
+% --------------Option 2: Selected Pixel Overlay--------------------------
+
+elseif PixelOverlay == 1
+
+
+
+% verify patches were made
+figure();
+imagesc(BlurredIm); 
+colorbar;
+title('Species Distribution Map');
+axis image; % make image square
+
+% --------------Option 3: Default (Gaussian)------------------------------
+
+else
+
+Sigmas = [0.1 0.2 0.3];
+[BlurredIm] = Patches(Sigmas,rows,cols,ClassPixelsMat,OtherPixelsMat);
+
+% verify patches were made
+figure();
+imagesc(BlurredIm); 
+colorbar;
+title('Species Distribution Map');
+axis image; % make image square
+
+end
 
 %% Assign class wavelengths to class pixels
 
