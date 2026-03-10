@@ -66,12 +66,12 @@ ClassPerc = {DougFirPerc, CottwoodPerc, BrgrsPerc};
 
 %% Make species patches
 
-Gaussian = 0;
-PixelOverlay = 1;
+GaussianBlur = 1;
+PixelOverlay = 0;
 
 % ------------------Option 1: Gaussian blurring--------------------------
 
-if Gaussian == 1
+if GaussianBlur == 1
 % choosing sigma:
 %   - 1% to 2% of the smallest dimension for small patches
 %   - around 5% of the smallest dimension for medium sized patches
@@ -120,17 +120,22 @@ axis image; % make image square
 
 end
 
-%% Assign class wavelengths to class pixels
-
 % flatten BlurredIm so it's easier to extract data
 pixelindices = BlurredIm(:);
 
-% Extract the 400 wavelengths for each pixel
-HSIData = Means(:, pixelindices); % 400 x 10000
+%% Add per pixel noise
+
+% Gaussian noise to account for biological diversity
+
+[GaussHSIData] = GaussNoise(Means, Stdplus, Stdminus, pixelindices);
+
+% Poisson noise to account for sensor noise
+
+%% Reshape into final image
 
 % reshape into cube - 400x10000 right now, so first 
 % reshape 10000 -> 100x100
-tempCube = reshape(HSIData, [wave_space, rows, cols]);
+tempCube = reshape(GaussHSIData, [wave_space, rows, cols]);
 
 % Permute to get the standard HSI format: [Rows x Cols x Bands]
 HSI = permute(tempCube, [2, 3, 1]);
